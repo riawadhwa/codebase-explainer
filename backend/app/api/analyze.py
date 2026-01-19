@@ -13,6 +13,8 @@ from app.services.repo_scanner import (
 )
 from app.agents.architecture_mapper import get_architecture_agent
 from app.schemas.architecture_map import ArchitectureMap
+from app.agents.execution_flow_agent import get_execution_flow_agent
+from app.schemas.execution_flow import ExecutionFlow
 
 
 router = APIRouter(prefix="/analyze", tags=["analysis"])
@@ -39,6 +41,7 @@ def analyze_repo(payload: RepoInput):
 
         classifier_agent = get_project_classifier()
         architecture_agent = get_architecture_agent()
+        execution_agent = get_execution_flow_agent()
 
         agent_input = f"""
         REPOSITORY STATISTICS:
@@ -56,15 +59,20 @@ def analyze_repo(payload: RepoInput):
 
         agent_result = classifier_agent.run_sync(agent_input)
         architecture_result = architecture_agent.run_sync(agent_input)
+        execution_result = execution_agent.run_sync(agent_input)
 
         raw_text = agent_result.output
         raw_arch = architecture_result.output.strip()
+        raw_exec = execution_result.output.strip()
+        
+        print("RAW AGENT OUTPUT:")
+        print(raw_text)
 
         try:
             parsed = json.loads(raw_text)
             summary = ProjectSummary.model_validate(parsed)
             architecture = ArchitectureMap.model_validate_json(raw_arch)
-
+            execution_flow = ExecutionFlow.model_validate_json(raw_exec)
         except Exception as e:
             raise HTTPException(
                 status_code=500,
@@ -74,7 +82,8 @@ def analyze_repo(payload: RepoInput):
         return {
             "status": "success",
             "repo_summary": summary.model_dump(),
-            "architecture": architecture.model_dump()
+            "architecture": architecture.model_dump(),
+            "execution_flow": execution_flow.model_dump()
         }
             
 

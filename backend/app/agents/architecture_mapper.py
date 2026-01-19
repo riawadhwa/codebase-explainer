@@ -2,7 +2,7 @@ from pydantic_ai import Agent
 
 def get_architecture_agent():
     return Agent(
-        model="openai:meta-llama/llama-3.3-70b-instruct:free",
+        model="openai:qwen/qwen-2.5-7b-instruct",
         system_prompt="""
 You are a senior software engineer explaining a codebase architecture
 to a new developer joining the project.

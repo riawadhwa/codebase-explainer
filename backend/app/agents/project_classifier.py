@@ -2,7 +2,7 @@ from pydantic_ai import Agent
 
 def get_project_classifier():
     return Agent(
-        model="openai:meta-llama/llama-3.3-70b-instruct:free",
+        model="openai:qwen/qwen-2.5-7b-instruct",
         system_prompt="""
 You are a senior software engineer analyzing a real GitHub repository.
 
