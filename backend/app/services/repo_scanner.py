@@ -1,3 +1,4 @@
+import json
 import os
 from app.utils.file_filters import IGNORE_DIRS, ALLOWED_EXTENSIONS
 from collections import Counter
@@ -57,3 +58,23 @@ def compute_repo_stats(files):
         "extension_counts": dict(Counter(extensions)),
         "common_filenames": list(set(filenames))[:20],
     }
+
+def extract_package_json(repo_path: str):
+    package_path = os.path.join(repo_path, "package.json")
+
+    if not os.path.exists(package_path):
+        return None
+
+    try:
+        with open(package_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        return {
+            "name": data.get("name"),
+            "scripts": data.get("scripts", {}),
+            "dependencies": list((data.get("dependencies") or {}).keys()),
+            "devDependencies": list((data.get("devDependencies") or {}).keys())
+        }
+    except Exception:
+        return None
+
