@@ -11,13 +11,26 @@ IGNORE_DIRS = {
 }
 
 ALLOWED_EXTENSIONS = {
+    # Backend
     ".py",
-    ".js",
-    ".ts",
     ".java",
     ".go",
+
+    # Frontend / Mobile
+    ".js",
+    ".jsx",
+    ".ts",
+    ".tsx",
+    ".html",
+    ".css",
+    ".scss",
+
+    # Config / Docs
     ".md",
     ".json",
     ".yml",
-    ".yaml"
+    ".yaml",
+    ".env",
+    ".toml",
+    ".lock"
 }
