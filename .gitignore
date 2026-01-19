@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+
+# Virtual environment
+venv/
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# FastAPI / temp
+*.sqlite3
+temp/
+uploads/
+
+# Node (future frontend safety)
+node_modules/
+dist/
+build/
