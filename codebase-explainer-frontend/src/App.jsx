@@ -4,7 +4,7 @@ import LoadingState from "./components/LoadingState";
 import ErrorCard from "./components/ErrorCard";
 import ResultsTabs from "./components/ResultsTabs";
 
-const API_URL = "http://localhost:8000/analyze"; // update after deploy
+const API_URL = "/analyze"; // update after deploy
 
 export default function App() {
   const [loading, setLoading] = useState(false);

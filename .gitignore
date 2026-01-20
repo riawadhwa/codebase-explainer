@@ -24,5 +24,4 @@ uploads/
 
 # Node (future frontend safety)
 node_modules/
-dist/
 build/
