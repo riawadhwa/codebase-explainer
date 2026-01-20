@@ -5,10 +5,23 @@ import os
 from urllib.parse import urlparse
 
 
+GITHUB_API_BASE = "https://api.github.com"
+
+
+def _github_headers():
+    token = os.getenv("GITHUB_TOKEN")
+
+    if not token:
+        raise Exception("GITHUB_TOKEN is not set in environment variables")
+
+    return {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "RepoLens-AI"
+    }
+
+
 def parse_github_url(repo_url: str):
-    """
-    Extract owner and repo name from GitHub URL
-    """
     parsed = urlparse(repo_url)
     parts = parsed.path.strip("/").split("/")
 
@@ -19,60 +32,35 @@ def parse_github_url(repo_url: str):
     return owner, repo
 
 
-def github_headers():
-    """
-    Headers required for GitHub API & ZIP downloads.
-    Uses GITHUB_TOKEN if available (recommended for production).
-    """
-    headers = {
-        "User-Agent": "RepoLens-AI",
-        "Accept": "application/vnd.github+json",
-    }
-
-    token = os.getenv("GITHUB_TOKEN")
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-
-    return headers
-
-
 def get_default_branch(owner: str, repo: str) -> str:
-    api_url = f"https://api.github.com/repos/{owner}/{repo}"
+    url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}"
 
-    response = requests.get(
-        api_url,
-        headers=github_headers(),
-        timeout=15,
-    )
+    response = requests.get(url, headers=_github_headers(), timeout=15)
 
     if response.status_code != 200:
         raise Exception(
-            f"Failed to fetch repository metadata: "
-            f"{response.status_code} {response.text}"
+            f"Failed to fetch repository metadata: {response.status_code} {response.text}"
         )
 
-    data = response.json()
-    return data.get("default_branch", "main")
+    return response.json()["default_branch"]
 
 
 def download_repo_zip(repo_url: str) -> str:
     owner, repo = parse_github_url(repo_url)
+    branch = get_default_branch(owner, repo)
 
-    default_branch = get_default_branch(owner, repo)
-    zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{default_branch}.zip"
+    zip_url = f"https://github.com/{owner}/{repo}/archive/refs/heads/{branch}.zip"
 
     response = requests.get(
         zip_url,
-        headers=github_headers(),
+        headers=_github_headers(),
         stream=True,
-        timeout=30,
+        timeout=30
     )
 
     if response.status_code != 200:
         raise Exception(
-            f"Failed to download repository ZIP "
-            f"(branch={default_branch}): "
-            f"{response.status_code}"
+            f"Failed to download repository ZIP: {response.status_code}"
         )
 
     temp_dir = tempfile.mkdtemp()
